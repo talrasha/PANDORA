@@ -1,22 +1,12 @@
 import sys, os, psycopg2
-if "PRA_HOME" not in os.environ:
-    print("Please set environment variable PRA_HOME before running.")
-    sys.exit(1)
-
-project_path = os.environ['PRA_HOME']
-
 from collections import OrderedDict
 from pyspark.sql.types import *
-import configparser
-from pathlib import Path
 
-def get_connection_object():
-    config = configparser.ConfigParser()
-    config.read(Path(project_path).joinpath("config.cfg"))
+assert "PRA_HOME" in os.environ
+sys.path.insert(1, os.environ["PRA_HOME"])
 
-    return config._sections["DATABASE"]
+from utils import CONNECTION_OBJECT
 
-CONNECTION_OBJECT = get_connection_object()
 CONNECTION_STR = f"jdbc:postgresql://{CONNECTION_OBJECT['host']}/{CONNECTION_OBJECT['database']}"
 CONNECTION_PROPERTIES = {"user": f"{CONNECTION_OBJECT['user']}", "password": f"{CONNECTION_OBJECT['password']}"}
 

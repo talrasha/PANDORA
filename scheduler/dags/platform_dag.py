@@ -1,31 +1,28 @@
-import sys, os
-if "PRA_HOME" not in os.environ:
-    print("Please set environment variable PRA_HOME before running.")
-    sys.exit(1)
-
-project_path = os.environ['PRA_HOME']
-sys.path.append(project_path)
-sys.path.append(project_path + "/orchestration")
-
 from airflow import DAG
 from airflow.operators.bash_operator import BashOperator
 from airflow.operators.python_operator import PythonOperator
+from datetime import datetime, timedelta
+import os, sys
 
-from orchestration import fetch_data, load_to_db, merge_stage_archive, stamp
+assert "PRA_HOME" in os.environ
 
-from datetime import datetime, timedelta, date
+# Entry of the whole workflow => Prepend project path(PRA_HOME) into sys.path
+sys.path.insert(1, os.environ["PRA_HOME"])
+
+from utils import PRA_HOME, AIRFLOW_CONFIG
+from scheduler.workflow_tasks import fetch_data, load_to_db, merge_stage_archive, stamp
 
 default_args = {
     'owner': 'hung',
     'depends_on_past': False,
-    'start_date': datetime(2020,12,23),
-    'email': ['hung.nguyen@tuni.fi'],
-    'email_on_failure': True,
+    'start_date': datetime.strptime(AIRFLOW_CONFIG["start_date"], "%Y-%m-%d"),
+    'email': [AIRFLOW_CONFIG["email"]],
+    'email_on_failure': bool(AIRFLOW_CONFIG["email_on_failure"]),
     'retries': 1,
     'retry_delay': timedelta(minutes=5),
 }
 
-dag = DAG('platform', default_args = default_args, schedule_interval = '0 0 */3 * *')
+dag = DAG('platform', default_args = default_args, schedule_interval = AIRFLOW_CONFIG["platform_dag_interval"])
 
 t1_jenkins = PythonOperator(
     task_id = 'fetch_jenkins_data',
@@ -54,14 +51,14 @@ t2 = PythonOperator(
 t3 = BashOperator(
     task_id = "spark_processing",
     dag = dag,
-    bash_command = f"cd {project_path}/spark && spark-submit --driver-class-path postgresql-42.2.12.jar spark.py"
+    bash_command = f"cd {PRA_HOME}/data_processing && spark-submit --driver-class-path postgresql-42.2.12.jar spark.py"
 )
 
 t4_merge = PythonOperator(
     task_id = 'merge_stage_archive',
     provide_context=False,
     python_callable= merge_stage_archive.merge,
-    # op_args=[f"{project_path}/data"],
+    # op_args=[f"{PRA_HOME}/data"],
     dag = dag
 )
 

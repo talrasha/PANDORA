@@ -1,17 +1,14 @@
-import sys, os
-if "PRA_HOME" not in os.environ:
-    print("Please set environment variable PRA_HOME before running.")
-    sys.exit(1)
-
-project_path = os.environ['PRA_HOME']
-
 import pandas as pd
-from pathlib import Path
-import sys, argparse
+import os, sys, argparse
 from sqlalchemy import create_engine
-from orchestration_utils import *
 
-def load(data_dir=f'{project_path}/data', conn_str=CONNECTION_STR, all=False):
+assert "PRA_HOME" in os.environ
+assert os.environ["PRA_HOME"] in sys.path
+
+from scheduler.workflow_tasks.workflow_utils import *
+from utils import PRA_HOME
+
+def load(data_dir=f'{PRA_HOME}/data', conn_str=CONNECTION_STR, all=False):
 
     print("Start writing CSV files to Database:")
     dirs, dtype_dicts = iter_data_directory(data_dir)
@@ -48,7 +45,7 @@ def load(data_dir=f'{project_path}/data', conn_str=CONNECTION_STR, all=False):
 if __name__ == "__main__":
     
     ap = argparse.ArgumentParser(description="Script to load CSV files to Database.")
-    ap.add_argument("-d","--data-directory", default=f'{project_path}/data' , help="Path to data directory.")
+    ap.add_argument("-d","--data-directory", default=f'{PRA_HOME}/data' , help="Path to data directory.")
     ap.add_argument("-a","--all", dest="all" , action="store_true", default=False , help="Whether to load all files including Staging and Archive.")
 
     args = vars(ap.parse_args())

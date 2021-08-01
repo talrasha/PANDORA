@@ -15,7 +15,12 @@ sonarcloud_data/sonar_data/
 spark_artefacts
 .DS_Store
 
-env/**
+.env/**
 # Temporary for git module
 git/**
 **/test_data/**
+
+# Pyenv
+.python-version
+
+note

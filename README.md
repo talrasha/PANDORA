@@ -43,4 +43,18 @@ In details, <span style="font-variant:small-caps;">Pandora</span> provides diffe
 [logo]: https://raw.githubusercontent.com/clowee/PANDORA/master/images/pandora_design.png "PANDORA design"
 
 
+## Project Structure
 
+```
+.
+├── README.md
+├── config.cfg                  # General Configurations for the project
+├── data_processing             # Spark Data Processing
+├── db                          # Backend database
+├── extractors                  # Extractors of different data sources
+├── installation_guide.md   
+├── requirements.txt            # Python env packages
+├── scheduler                   # Apache Airflow tasks and DAGs
+├── ui                          # Apache Superset exported templates
+└── utils.py                    # Utilities consumed by all other parts
+```

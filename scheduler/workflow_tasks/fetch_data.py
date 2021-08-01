@@ -1,21 +1,14 @@
-import sys, os, argparse, psycopg2
-if "PRA_HOME" not in os.environ:
-    print("Please set environment variable PRA_HOME before running.")
-    sys.exit(1)
-
-project_path = os.environ['PRA_HOME']
-sys.path.append(project_path)
-
-# Sonar Miner path
-sys.path.append("/mnt/sonar_miner")
-
-from jenkins_data.fetch_jenkins_data import fetch_jenkins_data
-from sonar_src import fetch_sonar_data
-
+import os, sys, argparse, psycopg2
 from pathlib import Path
-from orchestration_utils import CONNECTION_OBJECT
 
-def run(source, connection_object = CONNECTION_OBJECT, data_dir = f"{project_path}/data"):
+assert "PRA_HOME" in os.environ
+assert os.environ["PRA_HOME"] in sys.path
+
+from utils import PRA_HOME, CONNECTION_OBJECT
+from extractors.jenkins.fetch_jenkins_data import fetch_jenkins_data
+from extractors.sonarqube.sonar_src import fetch_organization_sonar_data
+
+def run(source, connection_object = CONNECTION_OBJECT, data_dir = f"{PRA_HOME}/data"):
     try:
         conn = psycopg2.connect(
             host=connection_object["host"],
@@ -31,7 +24,7 @@ def run(source, connection_object = CONNECTION_OBJECT, data_dir = f"{project_pat
             for row in sonar_org_keys:
                 key = row[0]
                 path = Path(data_dir).joinpath("sonarcloud").joinpath(key).absolute()
-                fetch_sonar_data(path, organization=key)
+                fetch_organization_sonar_data(output_path= path, organization=key)
 
         elif source == "jenkins":
             cursor.execute("SELECT DISTINCT jenkins_server FROM source")
@@ -49,16 +42,16 @@ def run(source, connection_object = CONNECTION_OBJECT, data_dir = f"{project_pat
 
     except (Exception, psycopg2.Error) as error:
         print(f"Error while connectiong to PRA database: {error}")
+        raise error
     finally:
         if(conn):
             cursor.close()
             conn.close()
     
-
 if __name__ == "__main__":
 
-    ap = argparse.ArgumentParser(description="Script to fetch new data from Jenkins and Sonarcli.")
-    ap.add_argument("-d","--data-directory", default=f'{project_path}/data' , help="Path to data directory.")
+    ap = argparse.ArgumentParser(description="Script to fetch new data from Jenkins and Sonarcloud.")
+    ap.add_argument("-d","--data-directory", default=f'{PRA_HOME}/data' , help="Path to data directory.")
 
     args = vars(ap.parse_args())
     data_dir = args['data_directory']
