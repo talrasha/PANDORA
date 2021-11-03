@@ -45,10 +45,6 @@ In details, <span style="font-variant:small-caps;">Pandora</span> provides diffe
 
 [logo]: https://raw.githubusercontent.com/clowee/PANDORA/master/images/pandora_design.png "PANDORA design"
 
-<<<<<<< HEAD
-
-=======
->>>>>>> 650b191c1aa6d21970f98bb8e9f738198ad4f3dc
 ## Project Structure
 
 ```
@@ -65,13 +61,10 @@ In details, <span style="font-variant:small-caps;">Pandora</span> provides diffe
 ├── ui                          # Apache Superset exported templates
 └── utils.py                    # Utilities consumed by all other parts
 ```
-<<<<<<< HEAD
-=======
 
 ## Dashboards
 + [Project Build Stability](http://sqa.rd.tuni.fi/r/1)
 + [Machine Learning Models](http://sqa.rd.tuni.fi/r/2)
-
 
 ## Importing Static Datasets for Visualization/Analysis
 
@@ -82,5 +75,3 @@ It is possible to import static datasets into the Visualization tool (Apache Sup
 2. Specify the tables you want to import. Go to **Data** -> **Datasets** or [this page](http://sqa.rd.tuni.fi/tablemodelview/add). You can simply specify a table using SQL, e.g ```SELECT * FROM <TABLE_NAME>```, or use a more complex SQL command to customize your view/table.
 
 3. If you have a CSV file. First, you need to create a backend database and wire it up with Superset (follow the Step 1). In the settings of the database, tick on **Allow Csv Upload** property, and specify **schemas_allowed_for_csv_upload** in the **Extra** section, e.g put "public". Now go to **Data** -> **Upload a CSV** or [this page](http://sqa.rd.tuni.fi/csvtodatabaseview/form), fill in the settings to upload the CSV into a database.
- 
->>>>>>> 650b191c1aa6d21970f98bb8e9f738198ad4f3dc
